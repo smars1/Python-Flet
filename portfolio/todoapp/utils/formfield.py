@@ -189,6 +189,19 @@ class ToDo(ft.Column):
          # Todo se va visualizar al final en un objeto ft.column
         self.tasks_view = ft.Column() # <- dentro de este control intaciamos nuestra clase task
         
+        self.filter = ft.Tabs(
+            selected_index=0,
+            on_change=self.tabs_changed,
+            tabs=[
+                ft.Tab(text="All"),
+                ft.Tab(text="Active"),
+                ft.Tab(text="Completed"),
+                ]
+            
+        )
+
+
+
         self.controls = [
             ft.Row(
                 controls=[
@@ -196,9 +209,19 @@ class ToDo(ft.Column):
                     self.button_add
                     ],
                 ),
-                self.tasks_view # <<<--- en esta columna se agrega la el checkboex con la tarea guardada
+                ft.Column(
+                    controls=[
+                    self.filter,
+                    self.tasks_view # <<<--- en esta columna se agrega la el checkboex con la tarea guardada 
+                    ]   
+                )
             ]
         
+       
+        
+    def tabs_changed(self, e):
+        print("tab_changed")  
+        self.update()  
 
     def add_clicked(self, e):
         print("add")
