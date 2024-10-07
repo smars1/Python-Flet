@@ -107,13 +107,13 @@ class Task(ft.Column):
         self.button_save = ft.IconButton(icon=ft.icons.SAVE, on_click=self.clicked_save_view, tooltip="Save")
         self.button_delete = ft.IconButton(icon=ft.icons.DELETE, on_click=self.delete, tooltip="Delete")
         
-        self.box_check = ft.Checkbox(value=False, label=self.task_name.value)
+        self.display_task = ft.Checkbox(value=False, label=self.task_name.value)
         
 
 
         self.display_view = ft.Row(
             controls=[
-                self.box_check,
+                self.display_task,
                 ft.Row(
                     controls=[
                         self.button_edit,
@@ -139,14 +139,14 @@ class Task(ft.Column):
     
     def clicked_edit_view(self,e):
         print("edit_view")
-        self.task_edit.value = self.box_check.label
+        self.task_edit.value = self.display_task.label
         self.display_view.visible=False
         self.edit_view.visible=True
         self.update()
 
     def clicked_save_view(self,e):
         print("save_view")
-        self.box_check.label = self.task_edit.value
+        self.display_task.label = self.task_edit.value
         self.display_view.visible=True
         self.edit_view.visible=False
         self.update()
