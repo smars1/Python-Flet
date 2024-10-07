@@ -96,18 +96,20 @@ class Formulario(ft.UserControl):
 # si usamos ft.Usercontrol, debemos especificar como se va construir en una funcion build()
 #class Task(ft.Row):
 class Task(ft.Column):
-    def __init__(self, task_name: str, task_delete:callable): # pasamos una funcion, esta se pasa desde donde se instancia
+    def __init__(self, task_name: str, task_status_change:callable, task_delete:callable): # pasamos una funcion, esta se pasa desde donde se instancia
         super().__init__() 
-        
+        self.completed = False
         self.task_name = ft.Text(task_name, visible=False)
         self.task_delete = task_delete
+        self.task_status_change = task_status_change
+
         self.task_edit = ft.TextField(hint_text="Enter Your Data", value=self.task_name.value)
         
         self.button_edit = ft.IconButton(icon=ft.icons.EDIT, on_click=self.clicked_edit_view, tooltip="Edit")
         self.button_save = ft.IconButton(icon=ft.icons.SAVE, on_click=self.clicked_save_view, tooltip="Save")
         self.button_delete = ft.IconButton(icon=ft.icons.DELETE, on_click=self.delete, tooltip="Delete")
         
-        self.display_task = ft.Checkbox(value=False, label=self.task_name.value)
+        self.display_task = ft.Checkbox(value=False, label=self.task_name.value, on_change=self.status_changed)
         
 
 
@@ -154,6 +156,10 @@ class Task(ft.Column):
     def delete(self, e):
         print("detele")
         self.task_delete(self)
+
+    def status_changed(self, e):
+        self.completed = self.display_task.value
+        self.task_status_change(e)
     
     # si usamos usercontrol como tipo de clase
     # def build(self):
@@ -219,14 +225,30 @@ class ToDo(ft.Column):
         
        
         
+    def before_update(self):
+        # desglosamos el index para movernos al text correspondiente y tomar su string
+        #status = self.filter.tabs[self.filter.selected_index].text
+        status = self.filter.tabs[self.filter.selected_index].text.lower()  # Obtener la pestaña seleccionada en minúsculas
+        for task in self.tasks_view.controls:
+            task.visible = (
+                status == "all"
+                or (status == "active" and task.completed == False)
+                or (status == "completed" and task.completed)
+            )
+
+    
     def tabs_changed(self, e):
         print("tab_changed")  
         self.update()  
 
+    def task_status_change(self, e):
+        print("Status_Change")
+        self.update()
+
     def add_clicked(self, e):
         print("add")
-        task = Task(self.new_task.value, self.task_delete)
-        # agregamos los controles (las task guardada) creados a la columna append
+        task = Task(self.new_task.value, self.task_status_change, self.task_delete)
+        # agregamos los controles (las task guardada) creados a la columna el metodo .controls admite elemetos de lista con append
         self.tasks_view.controls.append(task)
         # limpiamos nuestra entrada una vez salvada en la lista:  task_view 
         self.new_task.value=""
