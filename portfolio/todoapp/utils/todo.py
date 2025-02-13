@@ -19,7 +19,7 @@ class Task(ft.Column):
         # ask controls
         self.button_edit = ft.IconButton(icon=ft.icons.EDIT, on_click=self.clicked_edit_view, tooltip="Edit")
         self.button_save = ft.IconButton(icon=ft.icons.SAVE, on_click=self.clicked_save_view, tooltip="Save")
-        self.button_delete = ft.IconButton(icon=ft.icons.DELETE, on_click=self.delete, tooltip="Delete")
+        self.button_delete = ft.IconButton(icon=ft.icons.DELETE, on_click=self.clicked_delete_view, tooltip="Delete")
         
         self.subtask_view=ft.Column()
         self.button_add_subtask = ft.IconButton(icon=ft.icons.ADD_TASK, on_click=self.clicked_add_subtask, tooltip="Add_Subtask")
@@ -86,8 +86,8 @@ class Task(ft.Column):
     # Podemos crear funciones que reciban como parametros otras funciones:
     # estas funciones se puden crear desde otra clase, donde se va instaciar esta clase por ejemplo
     # una vez defidas las funciones estas se pansan a la instancia
-    def delete(self, e):
-        print("detele")
+    def clicked_delete_view(self, e):
+        print("detele_view")
         self.task_delete(self)
 
     def status_changed(self, e):
@@ -96,9 +96,13 @@ class Task(ft.Column):
 
     # agregamos subtask
     def clicked_add_subtask(self, e):
-        print("subtask")
-        subtask = SubTask("subtask 1")
+        print("add_subtask")
+        subtask = SubTask("subtask 1", subtask_delete=self.clicked_delete_subtask)
         self.subtask_view.controls.append(subtask)
+        self.update()
+
+    def clicked_delete_subtask(self, subtask):
+        self.subtask_view.controls.remove(subtask)
         self.update()
     
     # si usamos usercontrol como tipo de clase
@@ -124,16 +128,18 @@ class Task(ft.Column):
     #     self.update()
 
 class SubTask(ft.Column):
-    def __init__(self, subtask_name:str="Add_Subtask"):
+    def __init__(self, subtask_name:str, subtask_delete:callable):
         super().__init__()
         self.get_subtask_name = ft.Text(value=subtask_name)
         self.get_subtask_time = ft.Text()
+        self.subtask_delete = subtask_delete
 
         self.set_subtask_time = ft.TextField(hint_text="Time", label="Subtask")
         self.set_subtask_name = ft.TextField(value=self.get_subtask_name.value,  hint_text="Enter Your SubTask", label="Subtask")
 
         self.button_save_subtask = ft.IconButton(icon=ft.icons.TASK, on_click=self.clicked_save_subtask, tooltip="Save_Subtask")
         self.button_edit_subtask = ft.IconButton(icon=ft.icons.EDIT_NOTE, on_click=self.cliked_edit_subtask, tooltip="Edit_Subtask" )
+        self.button_delete_subtask = ft.IconButton(icon=ft.icons.DELETE, on_click=self.clicked_delete_subtask, tooltip="Delete_Subtask")
 
         
         # a los controles solo se pasan compoenentes no valores como self.button_save_subtask.value si no el componente completo: self.button_save_subtask
@@ -153,6 +159,7 @@ class SubTask(ft.Column):
                 self.get_subtask_name,
                 self.get_subtask_time,
                 self.button_edit_subtask,
+                self.button_delete_subtask
 
             ],
             visible=False
@@ -184,6 +191,7 @@ class SubTask(ft.Column):
 
     def clicked_delete_subtask(self, e):
         print("Delete_Subtask")
+        self.subtask_delete(self)
 
         
 
@@ -265,6 +273,25 @@ class ToDo(ft.Column):
         self.update()
 
 
+# Clase que funciona como contenedor
+class ContainerClass(ft.UserControl):
+    def __init__(self, child):
+        super().__init__()
+        self.child = child
+
+    def build(self):
+        # Encapsulando la clase `MiClase` en un `Container`
+        return ft.Container(
+            content=self.child,
+            padding=20,
+            border_radius=10,
+            bgcolor=ft.colors.BLACK87,
+            adaptive=True
+        )
+
+
+
+
 if __name__ == "__main__":
 
     def main(page: ft.Page):
@@ -276,9 +303,11 @@ if __name__ == "__main__":
         # create application instance
         #task_1 = Task(task_name="Enter Your Data", task_delete="")
         todo = ToDo()
+        container = ContainerClass(todo)
+
         #subtask = SubTask("subtask 1")
         # add application's root control to the page
-        page.add(todo)
+        page.add(container)
 
 
     ft.app(main)

@@ -10,16 +10,16 @@ class FormField(ft.UserControl):
         self.text_field = ft.TextField(label=self.label, width=self.width, text_size=self.text_size)
 
     def get_value(self):
-        """Método para obtener el valor del campo de texto"""
+        """Metodo para obtener el valor del campo de texto"""
         return self.text_field.value
 
     def set_error(self, message: str):
-        """Método para mostrar mensajes de error en el campo"""
+        """Metodo para mostrar mensajes de error en el campo"""
         self.text_field.error_text = message
         self.update()
 
     def clear_error(self):
-        """Método para limpiar mensajes de error"""
+        """Metodo para limpiar mensajes de error"""
         self.text_field.error_text = None
         self.update()
 
