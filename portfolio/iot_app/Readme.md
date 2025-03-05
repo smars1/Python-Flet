@@ -558,7 +558,153 @@ ft.app(target=main)
 
 
 
+# 📌 ¿Cómo manejar eventos en Flet de forma eficiente?
+Manejar eventos correctamente en Flet es clave para hacer que la UI sea dinámica y eficiente. Aquí te explicaré las mejores prácticas para estructurar y manejar eventos dentro de clases personalizadas (UserControl).
 
 
 
+## ✅ Buenas prácticas para manejar eventos en Flet
+- ✅ 1. Usar métodos dentro de la clase → En lugar de definir eventos fuera de la clase, defínelos dentro.
+- ✅ 2. Permitir que los eventos sean personalizados (on_event) → Permite pasar funciones como parámetros.
+- ✅ 3. Evitar lambda dentro de build() → Esto hace que los eventos sean más organizados.
+- ✅ 4. Actualizar solo lo necesario (self.update() en lugar de reconstruir todo el control) → Evita que toda la UI se vuelva a renderizar.
 
+## 📌 Implementación correcta en CustomColumn
+
+Aquí te muestro cómo manejar eventos correctamente dentro de CustomColumn.
+
+```py
+import flet as ft
+
+class CustomColumn(ft.UserControl):
+    """
+    Clase personalizada para organizar elementos en una columna y manejar eventos dinámicos.
+    """
+
+    def __init__(self, controls=None, spacing=10, alignment=ft.MainAxisAlignment.START, on_add=None, on_clear=None):
+        """
+        Constructor del CustomColumn.
+        :param controls: Lista de controles iniciales.
+        :param spacing: Espaciado entre elementos.
+        :param alignment: Alineación de los elementos en la columna.
+        :param on_add: Evento que se ejecuta al agregar un elemento.
+        :param on_clear: Evento que se ejecuta al limpiar la columna.
+        """
+        super().__init__()
+        self.controls = controls if controls else []
+        self.spacing = spacing
+        self.alignment = alignment
+        self.on_add = on_add  # 🔹 Evento al agregar un control
+        self.on_clear = on_clear  # 🔹 Evento al limpiar la columna
+        self.column = None  # Referencia interna a la columna
+
+    def build(self):
+        """
+        Construye la columna con los parámetros definidos.
+        """
+        self.column = ft.Column(
+            controls=self.controls,
+            spacing=self.spacing,
+            alignment=self.alignment
+        )
+        return self.column  # ✅ Retornamos la columna almacenada en `self.column`
+
+    def add_control(self, control):
+        """
+        Agrega un nuevo control a la columna y dispara un evento opcional.
+        """
+        if self.column:
+            self.column.controls.append(control)
+            self.column.update()  # ✅ Solo actualiza la columna
+
+            # 🔹 Dispara el evento personalizado si está definido
+            if self.on_add:
+                self.on_add(control)
+
+    def remove_control(self, control):
+        """
+        Elimina un control de la columna si existe.
+        """
+        if self.column and control in self.column.controls:
+            self.column.controls.remove(control)
+            self.column.update()
+
+    def clear_controls(self):
+        """
+        Elimina todos los controles de la columna y dispara un evento opcional.
+        """
+        if self.column:
+            self.column.controls.clear()
+            self.column.update()
+
+            # 🔹 Dispara el evento personalizado si está definido
+            if self.on_clear:
+                self.on_clear()
+
+```
+
+## ✅ Uso práctico de eventos en CustomColumn
+Aquí usamos on_add y on_clear para manejar eventos externos.
+```py
+def main(page: ft.Page):
+    page.title = "Ejemplo de CustomColumn con Eventos"
+
+    # ✅ Función que se ejecuta cuando se agrega un nuevo elemento
+    def elemento_agregado(control):
+        print(f"Elemento agregado: {control.value}")
+
+    # ✅ Función que se ejecuta cuando la columna es limpiada
+    def columna_limpiada():
+        print("La columna ha sido limpiada.")
+
+    # ✅ Crear la columna con eventos personalizados
+    columna = CustomColumn(on_add=elemento_agregado, on_clear=columna_limpiada)
+
+    # ✅ Botón para agregar elementos a la columna
+    def add_element(e):
+        nuevo_texto = ft.Text(f"Elemento {len(columna.column.controls) + 1}")
+        columna.add_control(nuevo_texto)
+
+    # ✅ Botón para limpiar la columna
+    def clear_elements(e):
+        columna.clear_controls()
+
+    btn_add = ft.ElevatedButton("Agregar elemento", on_click=add_element)
+    btn_clear = ft.ElevatedButton("Limpiar columna", on_click=clear_elements)
+
+    page.add(btn_add, btn_clear, columna)
+
+ft.app(target=main)
+
+```
+
+## 📌 Explicación detallada
+
+
+|🔹 Buenas prácticas |	📌 Cómo se aplicó |
+| -----------------  | ------------------- |
+| Eventos personalizados (on_add y on_clear)|	CustomColumn permite ejecutar una función externa cuando se agregan o eliminan elementos. |
+| Los eventos se pasan como parámetros|	CustomColumn(on_add=elemento_agregado, on_clear=columna_limpiada). |
+| Evita usar lambda dentro de build()|	Se definen add_control() y clear_controls(), en lugar de definir los eventos en build(). |
+| Actualiza solo lo necesario (self.column.update()) |	Se actualiza la Column sin reconstruir todo el UserControl. |
+
+## 🚀 Resultado esperado
+
+✅ Cada vez que agregas un elemento, se imprimirá en consola:
+```
+Elemento agregado: Elemento 1
+Elemento agregado: Elemento 2
+```
+✅ Cada vez que limpias la columna, se imprimirá:
+```
+La columna ha sido limpiada.
+```
+✅ La UI solo se actualiza donde es necesario, sin reconstruir todo el UserControl.
+
+## 📌 Conclusión
+- ✅ Los eventos deben manejarse como parámetros (on_event).
+- ✅ Evita lambda dentro de build() y usa métodos específicos para manejar eventos.
+- ✅ Siempre usa self.update() solo donde sea necesario, en lugar de reconstruir todo el UserControl.
+- ✅ Con esta estructura, puedes hacer que los componentes sean más dinámicos, reutilizables y eficientes.
+
+💡 Ahora puedes construir interfaces en Flet con eventos bien organizados y eficientes! 🚀🔥
