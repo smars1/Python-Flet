@@ -86,6 +86,8 @@ class StateButton(CustomButton):
                     # ✅ Actualizamos el boton dentro de `self.controls`
             self.controls.clear()  # Eliminamos el boton antiguo
             self.controls.append(self.build())  # Agregamos el boton actualizado
+            if self.on_click:
+                self.on_click(e) # Ejecuta la funcion proporcionada
             self.update()  # ✅ Esto forzará que `build()` se ejecute nuevamente y actualice el boton
 
 
