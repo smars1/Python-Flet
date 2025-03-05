@@ -12,7 +12,7 @@ class CustomTextField(ft.UserControl):
         self.on_change = on_change
         self.password = password
         self.width = width
-        # self.new_text = None # Elimina esta línea, ya que el TextField se define en build()
+        self.new_text = None # Elimina esta línea, ya que el TextField se define en build()
 
     # ✅ Evento para capturar texto en tiempo real
     def on_text_change(self, e):
