@@ -1,5 +1,6 @@
 import flet as ft
-from custombutton import CustomButton, StateButton, ButtonFactory
+#from custombutton import CustomButton, StateButton, ButtonFactory
+
 
 class CustomColumn(ft.UserControl):
     """
@@ -23,7 +24,7 @@ class CustomColumn(ft.UserControl):
         self.on_clear = on_clear  #  Evento al limpiar la columna
         #self.alignment = alignment if isinstance(alignment, ft.MainAxisAlignment) else ft.MainAxisAlignment.START
         
-        self.column = None # Referencia interna a la columna
+        self.column = ft.Column()# Referencia interna a la columna
         self.view = None # Referencia a la vista interna 
 
     def build(self):
@@ -46,6 +47,7 @@ class CustomColumn(ft.UserControl):
         )
         return self.view # Ahora `build()` devuelve la columna almacenada en `self.column`
     
+    # Transmiten el evento a otra clase como CustomButton por ejemplo
     def add_element(self, e):
         """
         Agrega un nuevo texto a la columna.
@@ -53,6 +55,24 @@ class CustomColumn(ft.UserControl):
         new_text = ft.Text(f"Elemento {len(self.column.controls) + 1}")
         self.column.controls.append(new_text)
         self.column.update()  #  Solo actualiza la columna
+
+    def remove_element(self, e):
+        """
+        Elimina el último elemento de la columna.
+        """
+        if self.column.controls:
+            self.column.controls.pop()
+            self.column.update()
+
+    def clear_elements(self, e):
+        """
+        Elimina todos los elementos de la columna.
+        """
+        self.column.controls.clear()
+        self.column.update()
+
+     # no tienen integracion para custombutton
+
 
     def add_control(self, control):
         """
